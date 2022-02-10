@@ -28,7 +28,7 @@ func clientIP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<p>IP: %s</p>", ip)
 	fmt.Fprintf(w, "<p>Port: %s</p>", port)
 	fmt.Fprintf(w, "<p>Forwarded for: %s</p>", forward)
-
+	fmt.Println("/client-ip")
 }
 
 func serverIP(w http.ResponseWriter, r *http.Request) {
@@ -43,10 +43,12 @@ func serverIP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	fmt.Println("/server-ip")
 }
 
 func getVarEnv(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, fmt.Sprintf("<br>%s<br>", os.Getenv("SECRET")))
+	fmt.Println("/get-secret")
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func check(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>Health check</h1>")
+	fmt.Println("/health_check")
 }
 
 func main() {
