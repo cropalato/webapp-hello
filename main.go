@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 )
 
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Hello World</h1>")
+func clientIP(w http.ResponseWriter, r *http.Request) {
 	ip, port, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		fmt.Fprintf(w, "userip: %q is not IP:port", r.RemoteAddr)
@@ -29,6 +29,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<p>Port: %s</p>", port)
 	fmt.Fprintf(w, "<p>Forwarded for: %s</p>", forward)
 
+}
+
+func serverIP(w http.ResponseWriter, r *http.Request) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		fmt.Println(err)
@@ -40,7 +43,14 @@ func index(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
 
+func getVarEnv(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, fmt.Sprintf("<br>%s<br>", os.Getenv("SECRET")))
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>Hello World</h1>")
 }
 
 func check(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +59,9 @@ func check(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", index)
+	http.HandleFunc("/client-ip", clientIP)
+	http.HandleFunc("/server-ip", serverIP)
+	http.HandleFunc("/get-secret", getVarEnv)
 	http.HandleFunc("/health_check", check)
 	fmt.Println("Server starting...")
 	http.ListenAndServe(":3000", nil)
