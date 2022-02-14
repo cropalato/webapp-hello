@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -24,10 +25,12 @@ func clientIP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "userip: %q is not IP:port", r.RemoteAddr)
 		return
 	}
+	fmt.Fprintf(w, "<p>IP: %s, Port: %s", ip, port)
 	forward := r.Header.Get("X-Forwarded-For")
-	fmt.Fprintf(w, "<p>IP: %s</p>", ip)
-	fmt.Fprintf(w, "<p>Port: %s</p>", port)
-	fmt.Fprintf(w, "<p>Forwarded for: %s</p>", forward)
+	if forward != "" {
+		fmt.Fprintf(w, ", Forwarded for: %s", forward)
+	}
+	fmt.Fprintf(w, "</p>")
 	fmt.Println("/client-ip")
 }
 
@@ -47,12 +50,27 @@ func serverIP(w http.ResponseWriter, r *http.Request) {
 }
 
 func getVarEnv(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, fmt.Sprintf("<br>%s<br>", os.Getenv("SECRET")))
+	secret := fmt.Sprintf("<br>%s<br>", os.Getenv("SECRET"))
+	fmt.Fprint(w, secret)
 	fmt.Println("/get-secret")
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Hello World</h1>")
+	if _, err := os.Stat("index.html"); err != nil {
+		fmt.Fprintf(w, "<h1>Hello World</h1>")
+	} else {
+		fileBytes, err := ioutil.ReadFile("index.html")
+		if err != nil {
+			panic(err)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, err = w.Write(fileBytes)
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
 }
 
 func check(w http.ResponseWriter, r *http.Request) {
@@ -67,5 +85,8 @@ func main() {
 	http.HandleFunc("/get-secret", getVarEnv)
 	http.HandleFunc("/health_check", check)
 	fmt.Println("Server starting...")
-	http.ListenAndServe(":3000", nil)
+	err := http.ListenAndServe(":3000", nil)
+	if err != nil {
+		panic(err)
+	}
 }
