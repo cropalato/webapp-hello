@@ -30,7 +30,7 @@ func clientIP(w http.ResponseWriter, r *http.Request) {
 	if forward != "" {
 		fmt.Fprintf(w, ", Forwarded for: %s", forward)
 	}
-	fmt.Fprintf(w, "</p>")
+	fmt.Fprintf(w, "</p>\n")
 	fmt.Println("/client-ip")
 }
 
@@ -42,7 +42,7 @@ func serverIP(w http.ResponseWriter, r *http.Request) {
 	for _, address := range addrs {
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				fmt.Fprintf(w, "<p>Server IP: %s</p>", ipnet.IP.String())
+				fmt.Fprintf(w, "<p>Server IP: %s</p>\n", ipnet.IP.String())
 			}
 		}
 	}
@@ -50,14 +50,14 @@ func serverIP(w http.ResponseWriter, r *http.Request) {
 }
 
 func getVarEnv(w http.ResponseWriter, r *http.Request) {
-	secret := fmt.Sprintf("<br>%s<br>", os.Getenv("SECRET"))
+	secret := fmt.Sprintf("<br>%s<br>\n", os.Getenv("SECRET"))
 	fmt.Fprint(w, secret)
 	fmt.Println("/get-secret")
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat("index.html"); err != nil {
-		fmt.Fprintf(w, "<h1>Hello World</h1>")
+		fmt.Fprintf(w, "<h1>Hello World</h1>\n")
 	} else {
 		fileBytes, err := ioutil.ReadFile("index.html")
 		if err != nil {
@@ -74,7 +74,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func check(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Health check</h1>")
+	fmt.Fprintf(w, "<h1>Health check</h1>\n")
 	fmt.Println("/health_check")
 }
 
